@@ -1,0 +1,80 @@
+
+/* Style the entire page */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 20px;
+}
+
+/* Style the main container */
+#container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border: 2px solid #333;
+    border-radius: 10px;
+}
+
+/* Style the main heading */
+h2 {
+    color: darkblue;
+    text-align: center;
+}
+
+/* Style the horizontal line */
+hr {
+    border: 1px solid #ccc;
+}
+
+/* Style the subheading */
+h3 {
+    color: darkgreen;
+}
+
+/* First-line pseudo-element selector */
+p::first-line {
+    color: darkblue;
+    font-weight: bold;
+}
+
+/* Class selector */
+.highlight {
+    background-color: #fff3cd;
+    border: 2px dashed orange;
+    padding: 10px;
+}
+
+/* General sibling selector */
+h3 ~ p {
+    font-style: italic;
+}
+
+/* Child selector */
+#container > span {
+    display: block;
+    color: purple;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+/* Group selector */
+img,
+time {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+/* Attribute selector */
+a[target="_blank"] {
+    color: blue;
+    text-decoration: none;
+}
+
+/* Hover effect */
+a[target="_blank"]:hover {
+    color: red;
+    text-decoration: underline;
+}
