@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Slice. Pizza Experience</title>
+
+<style>
+    *{
+        margin:0;
+        padding:0;
+        box-sizing:border-box;
+    }
+
+    body{
+        font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+        background:#220606;
+        color:white;
+        height:100vh;
+        overflow:hidden; /* Locks main app frame like a mobile viewport */
+    }
+
+    /* --- MOBILE APP VIEWPORT WRAPPER --- */
+    .app-container {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        background: #220606;
+    }
+
+    /* --- HERO SCREEN --- */
+    .hero{
+        position:absolute;
+        top: 0;
+        left: 0;
+        width:100%;
+        height:100%;
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        overflow:hidden;
+        background:#220606;
+        z-index: 1;
+    }
+
+    /* FIRE PARTICLES */
+    .ember{
+        position:absolute;
+        border-radius:50%;
+        background:#ff6b35;
+        box-shadow:
+            0 0 8px #ff4500,
+            0 0 16px #ff8c00;
+        pointer-events:none;
+        animation:floatEmber linear infinite;
+    }
+
+    @keyframes floatEmber{
+        0%{
+            transform:translateY(110vh) scale(.4);
+            opacity:0;
+        }
+        15%{
+            opacity:1;
+        }
+        85%{
+            opacity:1;
+        }
+        100%{
+            transform:translateY(-10vh) scale(1.3);
+            opacity:0;
+        }
+    }
+
+    /* PIZZA SLICES */
+    .floating-slice{
+        position:absolute;
+        object-fit:cover;
+        clip-path:polygon(50% 0%,100% 100%,0% 100%);
+        -webkit-clip-path:polygon(50% 0%,100% 100%,0% 100%);
+        filter:drop-shadow(0 20px 30px rgba(0,0,0,.8));
+        pointer-events:none;
+        z-index:2;
+    }
+
+    .left-slice{
+        width:380px;
+        height:500px;
+        left:-40px;
+        top:50%;
+        animation:floatLeft 6s ease-in-out infinite alternate;
+    }
+
+    .right-slice{
+        width:450px;
+        height:580px;
+        right:-80px;
+        top:50%;
+        animation:floatRight 7s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatLeft{
+        from{
+            transform:translateY(-52%) rotate(-28deg);
+        }
+        to{
+            transform:translateY(-48%) rotate(-22deg);
+        }
+    }
+
+    @keyframes floatRight{
+        from{
+            transform:translateY(-48%) rotate(10deg);
+        }
+        to{
+            transform:translateY(-52%) rotate(6deg);
+        }
+    }
+
+    /* CONTENT */
+    .hero-content{
+        position:relative;
+        z-index:10;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        text-align:center;
+    }
+
+    .upper-label{
+        display:flex;
+        align-items:center;
+        gap:8px;
+        padding:8px 16px;
+        border-radius:30px;
+        background:rgba(255,255,255,.05);
+        border:1px solid rgba(255,255,255,.1);
+        text-transform:uppercase;
+        letter-spacing:1px;
+        font-size:.8rem;
+        margin-bottom:25px;
+    }
+
+    .label-dot{
+        width:8px;
+        height:8px;
+        background:#ff4757;
+        border-radius:50%;
+    }
+
+    .main-title{
+        font-size:8rem;
+        font-weight:900;
+        font-family:Georgia,serif;
+        line-height:.9;
+        letter-spacing:-5px;
+        margin-bottom:20px;
+    }
+
+    .title-dot{
+        color:#ff4757;
+    }
+
+    .subtitle{
+        color:#cccccc;
+        margin-bottom:40px;
+        font-size:1.1rem;
+    }
+
+    .buttons-container{
+        display:flex;
+        gap:15px;
+    }
+
+    .btn{
+        padding:14px 30px;
+        border:none;
+        border-radius:30px;
+        text-decoration:none;
+        text-transform:uppercase;
+        font-weight:600;
+        transition:.3s;
+        cursor: pointer;
+    }
+
+    .btn:hover{
+        transform:translateY(-3px);
+    }
+
+    .btn-primary{
+        background:linear-gradient(to right,#ff6b6b,#f0932b);
+        color:white;
+    }
+
+    .btn-secondary{
+        background:#1a1a1a;
+        color:white;
+        border:1px solid rgba(255,255,255,.1);
+    }
+
+    /* APP TOP BAR OVERLAY ICONS */
+    .app-top-bar {
+        position: absolute;
+        top: 25px;
+        right: 35px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 30;
+    }
+
+    .cart-icon {
+        background: rgba(35, 10, 10, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 0.95rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        transition: all 0.3s ease;
+    }
+
+    .cart-icon:hover {
+        border-color: rgba(255, 107, 53, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .cart-count {
+        background: linear-gradient(135deg, #ff4757, #ff6b35);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 50px;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .cart-count.bounce {
+        transform: scale(1.4);
+    }
+
+    /* --- MOBILE APP SLIDE-UP MENU PANEL --- */
+    .menu-panel {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #120404;
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(255, 107, 53, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(255, 71, 87, 0.15) 0%, transparent 40%);
+        z-index: 50;
+        overflow-y: auto;
+        padding: 50px 20px;
+        transform: translateY(100%);
+        transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .menu-panel.active {
+        transform: translateY(0);
+    }
+
+    .menu-panel-inner {
+        width: 100%;
+        max-width: 1200px;
+        position: relative;
+    }
+
+    .menu-header-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .home-btn {
+        background: rgba(35, 10, 10, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        color: #fff;
+        padding: 10px 18px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        font-size: 0.95rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .home-btn:hover {
+        border-color: rgba(255, 107, 53, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .section-subtitle {
+        color: #ff6b35;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .section-title {
+        font-size: 3rem;
+        font-weight: 900;
+        font-family: Georgia, serif;
+        text-transform: uppercase;
+        letter-spacing: -1px;
+    }
+
+    .section-title span {
+        color: #ff4757;
+    }
+
+    /* CARDS GRID */
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+        gap: 30px;
+        width: 100%;
+        padding-bottom: 60px;
+    }
+
+    /* GLASSMORPHISM CARD STYLING */
+    .glass-card {
+        position: relative;
+        background: rgba(35, 10, 10, 0.45);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-8px);
+        border-color: rgba(255, 107, 53, 0.3);
+        box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .card-img-container {
+        position: relative;
+        height: 250px;
+        overflow: hidden;
+    }
+
+    .card-img-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .glass-card:hover .card-img-container img {
+        transform: scale(1.08);
+    }
+
+    .badge {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        background: rgba(18, 4, 4, 0.65);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #fff;
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-radius: 20px;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 2;
+    }
+
+    .badge.hot {
+        background: linear-gradient(135deg, rgba(255, 71, 87, 0.8), rgba(255, 107, 53, 0.8));
+    }
+
+    .badge.fresh {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.8), rgba(39, 174, 96, 0.8));
+    }
+
+    .card-content {
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        justify-content: space-between;
+    }
+
+    .card-header-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-bottom: 12px;
+    }
+
+    .card-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        font-family: Georgia, serif;
+        letter-spacing: -0.3px;
+    }
+
+    .card-price {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #ff6b35;
+    }
+
+    .card-desc {
+        color: #b3b3b3;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 25px;
+    }
+
+    .btn-glass-order {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        color: white;
+        text-transform: uppercase;
+        font-weight: 600;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        border-radius: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-glass-order:hover {
+        background: linear-gradient(to right, #ff6b6b, #f0932b);
+        border-color: transparent;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(255, 107, 53, 0.3);
+    }
+
+    /* --- SLIDE-OVER CART DRAWER --- */
+    .cart-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 100;
+        display: flex;
+        justify-content: flex-end;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.4s ease;
+    }
+
+    .cart-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .cart-drawer {
+        width: 100%;
+        max-width: 440px;
+        height: 100%;
+        background: rgba(25, 8, 8, 0.85);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        border-left: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: -20px 0 50px rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 30px;
+    }
+
+    .cart-overlay.active .cart-drawer {
+        transform: translateX(0);
+    }
+
+    .cart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+
+    .cart-title-area {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        font-family: Georgia, serif;
+    }
+
+    .close-cart {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .close-cart:hover {
+        background: rgba(255, 71, 87, 0.3);
+        border-color: rgba(255, 71, 87, 0.5);
+    }
+
+    .cart-body {
+        flex-grow: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding-right: 5px;
+    }
+
+    .empty-cart-msg {
+        color: #888;
+        text-align: center;
+        margin-top: 60px;
+        font-size: 0.95rem;
+    }
+
+    .cart-item {
+        background: rgba(45, 15, 15, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 18px;
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative;
+    }
+
+    .cart-item img {
+        width: 70px;
+        height: 70px;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+
+    .cart-item-details {
+        flex-grow: 1;
+    }
+
+    .cart-item-title {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 4px;
+        font-family: Georgia, serif;
+    }
+
+    .cart-item-price {
+        color: #ff6b35;
+        font-weight: 800;
+        font-size: 0.95rem;
+        margin-bottom: 8px;
+    }
+
+    .cart-item-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .qty-btn {
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        color: white;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+
+    .qty-btn:hover {
+        background: rgba(255, 107, 53, 0.5);
+    }
+
+    .qty-display {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .delete-item {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background: none;
+        border: none;
+        color: #888;
+        cursor: pointer;
+        transition: color 0.2s;
+    }
+
+    .delete-item:hover {
+        color: #ff4757;
+    }
+
+    .cart-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 20px;
+        margin-top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        color: #b3b3b3;
+        font-size: 0.9rem;
+    }
+
+    .summary-row.total {
+        color: white;
+        font-weight: 800;
+        font-size: 1.25rem;
+        margin-top: 5px;
+        margin-bottom: 15px;
+    }
+
+    .summary-row.total span:last-child {
+        color: #ff6b35;
+    }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(135deg, #4a0d0d, #8b0000, #ff4500, #ff6b35);
+        background-size: 300% 300%;
+        color: white;
+        border: 1px solid rgba(255, 100, 50, 0.4);
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 25px rgba(139, 0, 0, 0.6), 0 0 15px rgba(255, 69, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        animation: fireButtonAnimation 4s ease infinite alternate;
+    }
+
+    @keyframes fireButtonAnimation {
+        0% {
+            background-position: 0% 50%;
+            box-shadow: 0 10px 25px rgba(139, 0, 0, 0.6), 0 0 15px rgba(255, 69, 0, 0.4);
+        }
+        50% {
+            background-position: 100% 50%;
+            box-shadow: 0 12px 30px rgba(139, 0, 0, 0.8), 0 0 25px rgba(255, 140, 0, 0.6);
+        }
+        100% {
+            background-position: 0% 50%;
+            box-shadow: 0 10px 25px rgba(139, 0, 0, 0.6), 0 0 15px rgba(255, 69, 0, 0.4);
+        }
+    }
+
+    .btn-checkout:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.2);
+    }
+
+    .confirmation-view {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        flex-grow: 1;
+        gap: 20px;
+    }
+
+    .success-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: rgba(46, 204, 113, 0.15);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid rgba(46, 204, 113, 0.4);
+        box-shadow: 0 0 30px rgba(46, 204, 113, 0.2);
+    }
+
+    .success-icon {
+        font-size: 2.2rem;
+        color: #2ecc71;
+    }
+
+    .confirmation-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        font-family: Georgia, serif;
+    }
+
+    .confirmation-desc {
+        color: #b3b3b3;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        max-width: 300px;
+    }
+
+    @media(max-width:900px){
+        .main-title{
+            font-size:4rem;
+        }
+
+        .left-slice{
+            width:180px;
+            height:240px;
+        }
+
+        .right-slice{
+            width:220px;
+            height:280px;
+        }
+
+        .floating-slice{
+            opacity:.4;
+        }
+
+        .buttons-container{
+            flex-direction:column;
+            width:100%;
+            padding:0 40px;
+        }
+
+        .btn{
+            width:100%;
+            text-align:center;
+        }
+
+        .section-title {
+            font-size: 2.2rem;
+        }
+        .menu-grid {
+            grid-template-columns: 1fr;
+        }
+        .cart-drawer {
+            max-width: 100%;
+        }
+    }
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app-container">
+
+    <!-- TOP APP BAR (Cart Icon on Hero) -->
+    <div class="app-top-bar">
+        <div class="cart-icon" id="cartToggleBtnHero">
+            Cart <span class="cart-count" id="cartCountHero">0</span>
+        </div>
+    </div>
+
+    <!-- UNTOUCHED HERO SCREEN -->
+    <section class="hero">
+
+        <!-- FIRE PARTICLES -->
+        <div class="ember" style="left:8%;width:4px;height:4px;animation-duration:5s;"></div>
+        <div class="ember" style="left:15%;width:7px;height:7px;animation-duration:4s;"></div>
+        <div class="ember" style="left:25%;width:5px;height:5px;animation-duration:6s;"></div>
+        <div class="ember" style="left:40%;width:8px;height:8px;animation-duration:5s;"></div>
+        <div class="ember" style="left:55%;width:4px;height:4px;animation-duration:4s;"></div>
+        <div class="ember" style="left:65%;width:7px;height:7px;animation-duration:6s;"></div>
+        <div class="ember" style="left:78%;width:5px;height:5px;animation-duration:5s;"></div>
+        <div class="ember" style="left:90%;width:6px;height:6px;animation-duration:4s;"></div>
+
+        <!-- LEFT PIZZA -->
+        <img
+            class="floating-slice left-slice"
+            src="https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=700&q=80">
+
+        <!-- CONTENT -->
+        <div class="hero-content">
+
+            <div class="upper-label">
+                <span class="label-dot"></span>
+                Cinematic Pizza Experience
+            </div>
+
+            <h1 class="main-title">
+                SLICE<span class="title-dot">.</span>
+            </h1>
+
+            <p class="subtitle">
+                Wood-fired perfection. Elevated ingredients.
+            </p>
+
+            <div class="buttons-container">
+                <button class="btn btn-primary" id="openMenuBtn">
+                    MENU →
+                </button>
+
+                <button class="btn btn-secondary">
+                    ⚙ MAKE YOUR OWN
+                </button>
+            </div>
+
+        </div>
+
+        <!-- RIGHT PIZZA -->
+        <img
+            class="floating-slice right-slice"
+            src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80">
+
+    </section>
+
+    <!-- VERTICAL SLIDE-UP FULL-SCREEN MENU PANEL -->
+    <div class="menu-panel" id="menuPanel">
+        <div class="menu-panel-inner">
+            
+            <div class="menu-header-bar">
+                <button class="home-btn" id="closeMenuBtn">
+                    ← Home
+                </button>
+                <!-- Cart Icon inside Menu Panel Top Bar -->
+                <div class="cart-icon" id="cartToggleBtnMenu">
+                    Cart <span class="cart-count" id="cartCountMenu">0</span>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <span class="section-subtitle">Artisanal Selection</span>
+                <h2 class="section-title">Wood-Fired <span>Menu</span></h2>
+            </div>
+
+            <div class="menu-grid">
+                
+                <!-- Card 1 -->
+                <div class="glass-card">
+                    <div class="card-img-container">
+                        <span class="badge">Bestseller</span>
+                        <img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=700&q=80" alt="Margherita Classica">
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <div class="card-header-info">
+                                <h3 class="card-title">Margherita Classica</h3>
+                                <span class="card-price">₹1,350</span>
+                            </div>
+                            <p class="card-desc">San Marzano tomatoes, fresh mozzarella di bufala, basil, and extra virgin olive oil.</p>
+                        </div>
+                        <button class="btn-glass-order add-to-cart-btn" data-id="1" data-name="Margherita Classica" data-price="1350" data-img="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&w=700&q=80">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass-card">
+                    <div class="card-img-container">
+                        <span class="badge hot">Spicy</span>
+                        <img src="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=700&q=80" alt="Diavola Inferno">
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <div class="card-header-info">
+                                <h3 class="card-title">Diavola Inferno</h3>
+                                <span class="card-price">₹1,550</span>
+                            </div>
+                            <p class="card-desc">Spicy Italian salami, Calabrian chili honey, fior di latte, and fresh oregano.</p>
+                        </div>
+                        <button class="btn-glass-order add-to-cart-btn" data-id="2" data-name="Diavola Inferno" data-price="1550" data-img="https://images.unsplash.com/photo-1628840042765-356cda07504e?auto=format&fit=crop&w=700&q=80">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- Card 3 - Farm Fresh with requested proper image -->
+                <div class="glass-card">
+                    <div class="card-img-container">
+                        <span class="badge fresh">Farm Fresh</span>
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80" alt="Farm Fresh Pizza">
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <div class="card-header-info">
+                                <h3 class="card-title">Farm Fresh</h3>
+                                <span class="card-price">₹1,750</span>
+                            </div>
+                            <p class="card-desc">Loaded with garden-fresh bell peppers, sweet corn, mushrooms, black olives, and farm herbs.</p>
+                        </div>
+                        <button class="btn-glass-order add-to-cart-btn" data-id="3" data-name="Farm Fresh" data-price="1750" data-img="https://images.unsplash.com/photo-1511025997449-63d5add9e4a8?auto=format&fit=crop&w=700&q=80">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="glass-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80" alt="Quattro Formaggi">
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <div class="card-header-info">
+                                <h3 class="card-title">Quattro Formaggi</h3>
+                                <span class="card-price">₹1,500</span>
+                            </div>
+                            <p class="card-desc">Mozzarella, gorgonzola, parmesan, and provolone cheese blend with garlic oil.</p>
+                        </div>
+                        <button class="btn-glass-order add-to-cart-btn" data-id="4" data-name="Quattro Formaggi" data-price="1500" data-img="https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=700&q=80">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="glass-card">
+                    <div class="card-img-container">
+                        <span class="badge">Classic</span>
+                        <img src="https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=700&q=80" alt="Pepperoni Supreme">
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <div class="card-header-info">
+                                <h3 class="card-title">Pepperoni Supreme</h3>
+                                <span class="card-price">₹1,650</span>
+                            </div>
+                            <p class="card-desc">Double layer crispy pepperoni, rich tomato sauce, and extra melted mozzarella.</p>
+                        </div>
+                        <button class="btn-glass-order add-to-cart-btn" data-id="5" data-name="Pepperoni Supreme" data-price="1650" data-img="https://images.unsplash.com/photo-1534308983496-4fabb1a015ee?auto=format&fit=crop&w=700&q=80">Add to Cart</button>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="glass-card">
+                    <div class="card-img-container">
+                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=700&q=80" alt="BBQ Chicken Feast">
+                    </div>
+                    <div class="card-content">
+                        <div>
+                            <div class="card-header-info">
+                                <h3 class="card-title">BBQ Chicken Feast</h3>
+                                <span class="card-price">₹1,800</span>
+                            </div>
+                            <p class="card-desc">Grilled chicken, smoky BBQ sauce drizzle, red onions, and fresh cilantro leaves.</p>
+                        </div>
+                        <button class="btn-glass-order add-to-cart-btn" data-id="6" data-name="BBQ Chicken Feast" data-price="1800" data-img="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=700&q=80">Add to Cart</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- SLIDE-OVER GLASSMORPHISM CART DRAWER -->
+<div class="cart-overlay" id="cartOverlay">
+    <div class="cart-drawer">
+        
+        <!-- Cart Header -->
+        <div class="cart-header">
+            <div class="cart-title-area">
+                <span>Cart</span>
+                <span id="cartHeaderTitle">Your Cart (0)</span>
+            </div>
+            <button class="close-cart" id="closeCartBtn">✕</button>
+        </div>
+
+        <!-- Cart Main Content Area -->
+        <div class="cart-body" id="cartBody">
+            <div class="empty-cart-msg" id="emptyCartMsg">Your cart is currently empty.</div>
+            <div id="cartItemsList"></div>
+        </div>
+
+        <!-- Cart Summary & Checkout Footer -->
+        <div class="cart-footer" id="cartFooter">
+            <div class="summary-row">
+                <span>Subtotal</span>
+                <span id="subtotalAmount">₹0</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax (8.75%)</span>
+                <span id="taxAmount">₹0</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery</span>
+                <span id="deliveryAmount">₹350</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total</span>
+                <span id="totalAmount">₹350</span>
+            </div>
+            <button class="btn-checkout" id="checkoutBtn">
+                Checkout
+            </button>
+        </div>
+
+        <!-- Order Confirmed State View (Hidden by default) -->
+        <div class="confirmation-view" id="confirmationView">
+            <div class="success-icon-wrapper">
+                <span class="success-icon">✓</span>
+            </div>
+            <h3 class="confirmation-title">Order Confirmed!</h3>
+            <p class="confirmation-desc">Your pizzas are being fired. We'll text you when they're ready for pickup or on the way. Grazie!</p>
+            <button class="btn-checkout" id="backToMenuBtn" style="margin-top: 20px;">
+                Back to Menu
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    let cart = [];
+    
+    const openMenuBtn = document.getElementById('openMenuBtn');
+    const closeMenuBtn = document.getElementById('closeMenuBtn');
+    const menuPanel = document.getElementById('menuPanel');
+
+    const cartToggleBtnHero = document.getElementById('cartToggleBtnHero');
+    const cartToggleBtnMenu = document.getElementById('cartToggleBtnMenu');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const closeCartBtn = document.getElementById('closeCartBtn');
+    
+    const cartCountHero = document.getElementById('cartCountHero');
+    const cartCountMenu = document.getElementById('cartCountMenu');
+    
+    const cartHeaderTitle = document.getElementById('cartHeaderTitle');
+    const cartItemsList = document.getElementById('cartItemsList');
+    const emptyCartMsg = document.getElementById('emptyCartMsg');
+    const cartFooter = document.getElementById('cartFooter');
+    const confirmationView = document.getElementById('confirmationView');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const backToMenuBtn = document.getElementById('backToMenuBtn');
+
+    const subtotalEl = document.getElementById('subtotalAmount');
+    const taxEl = document.getElementById('taxAmount');
+    const deliveryEl = document.getElementById('deliveryAmount');
+    const totalEl = document.getElementById('totalAmount');
+
+    // Open/Close App Menu Panel
+    openMenuBtn.addEventListener('click', () => {
+        menuPanel.classList.add('active');
+    });
+
+    closeMenuBtn.addEventListener('click', () => {
+        menuPanel.classList.remove('active');
+    });
+
+    // Open/Close Cart Drawer from either hero or menu top bar
+    const openCart = () => {
+        cartOverlay.classList.add('active');
+    };
+
+    cartToggleBtnHero.addEventListener('click', openCart);
+    cartToggleBtnMenu.addEventListener('click', openCart);
+
+    closeCartBtn.addEventListener('click', () => {
+        cartOverlay.classList.remove('active');
+    });
+
+    cartOverlay.addEventListener('click', (e) => {
+        if (e.target === cartOverlay) {
+            cartOverlay.classList.remove('active');
+        }
+    });
+
+    // Add to Cart Logic
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const id = e.target.getAttribute('data-id');
+            const name = e.target.getAttribute('data-name');
+            const price = parseInt(e.target.getAttribute('data-price'));
+            const img = e.target.getAttribute('data-img');
+
+            const existingItem = cart.find(item => item.id === id);
+            if (existingItem) {
+                existingItem.qty++;
+            } else {
+                cart.push({ id, name, price, img, qty: 1 });
+            }
+
+            updateCartUI();
+            cartOverlay.classList.add('active');
+        });
+    });
+
+    // Update Cart Render & Totals
+    function updateCartUI() {
+        cartItemsList.innerHTML = '';
+        let totalItems = 0;
+        let subtotal = 0;
+
+        if (cart.length === 0) {
+            emptyCartMsg.style.display = 'block';
+            cartFooter.style.display = 'none';
+        } else {
+            emptyCartMsg.style.display = 'none';
+            cartFooter.style.display = 'flex';
+
+            cart.forEach(item => {
+                totalItems += item.qty;
+                subtotal += item.price * item.qty;
+
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'cart-item';
+                itemDiv.innerHTML = `
+                    <img src="${item.img}" alt="${item.name}">
+                    <div class="cart-item-details">
+                        <div class="cart-item-title">${item.name}</div>
+                        <div class="cart-item-price">₹${item.price.toLocaleString()}</div>
+                        <div class="cart-item-controls">
+                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                            <span class="qty-display">${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                        </div>
+                    </div>
+                    <button class="delete-item" onclick="removeItem('${item.id}')">🗑</button>
+                `;
+                cartItemsList.appendChild(itemDiv);
+            });
+        }
+
+        // Calculations
+        const tax = Math.round(subtotal * 0.0875);
+        const delivery = subtotal > 0 ? 350 : 0;
+        const grandTotal = subtotal + tax + delivery;
+
+        // Update UI Text for both cart counters
+        cartCountHero.textContent = totalItems;
+        cartCountMenu.textContent = totalItems;
+        
+        cartHeaderTitle.textContent = `Your Cart (${totalItems})`;
+        subtotalEl.textContent = `₹${subtotal.toLocaleString()}`;
+        taxEl.textContent = `₹${tax.toLocaleString()}`;
+        deliveryEl.textContent = `₹${delivery.toLocaleString()}`;
+        totalEl.textContent = `₹${grandTotal.toLocaleString()}`;
+
+        // Bounce Badge Effect on both
+        cartCountHero.classList.add('bounce');
+        cartCountMenu.classList.add('bounce');
+        setTimeout(() => {
+            cartCountHero.classList.remove('bounce');
+            cartCountMenu.classList.remove('bounce');
+        }, 300);
+    }
+
+    // Quantity modifiers
+    window.changeQty = function(id, delta) {
+        const item = cart.find(i => i.id === id);
+        if (item) {
+            item.qty += delta;
+            if (item.qty <= 0) {
+                cart = cart.filter(i => i.id !== id);
+            }
+            updateCartUI();
+        }
+    }
+
+    window.removeItem = function(id) {
+        cart = cart.filter(i => i.id !== id);
+        updateCartUI();
+    }
+
+    // Checkout Action -> Displays Order Confirmed screen
+    checkoutBtn.addEventListener('click', () => {
+        if (cart.length === 0) return;
+        cartFooter.style.display = 'none';
+        cartItemsList.style.display = 'none';
+        emptyCartMsg.style.display = 'none';
+        cartHeaderTitle.textContent = 'Your Cart';
+        confirmationView.style.display = 'flex';
+    });
+
+    // Reset back to menu
+    backToMenuBtn.addEventListener('click', () => {
+        cart = [];
+        updateCartUI();
+        confirmationView.style.display = 'none';
+        cartItemsList.style.display = 'flex';
+        cartOverlay.classList.remove('active');
+    });
+</script>
+
+</body>
+</html>
